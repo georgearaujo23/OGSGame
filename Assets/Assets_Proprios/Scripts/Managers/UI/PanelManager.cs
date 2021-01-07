@@ -1,0 +1,32 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using UnityEngine;
+using UnityEngine.UI;
+
+namespace Managers.UI
+{
+    class PanelManager : MonoBehaviour
+    {
+        [SerializeField] private Button btnFechar;
+        [SerializeField] private Text titulo;
+
+        // Use this for initialization
+        void Start()
+        {
+            btnFechar.onClick.AddListener(FecharPanel);
+        }
+
+        private void SetTitulo(string titulo)
+        {
+            this.titulo.text = titulo;
+        }
+            
+        void FecharPanel()
+        {
+            gameObject.SetActive(false);
+        }
+    }
+}

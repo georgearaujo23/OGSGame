@@ -24,7 +24,7 @@ public class QuestaoManager : MonoBehaviour
 
     void RespostaQuestao()
     {
-        UIEstacao3Manager.instance.PainelQuestaoDisabled(this);
+        // UIEstacao3Manager.instance.PainelQuestaoDisabled(this);
        
 
     }

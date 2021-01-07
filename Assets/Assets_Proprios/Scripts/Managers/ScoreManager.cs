@@ -1,16 +1,15 @@
 ﻿using Controller;
 using Classes;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using System;
+using Managers.UI;
 
 public class ScoreManager : MonoBehaviour {
-
+    
     public static ScoreManager instance;
-    Tribo tribo;
+    private static Tribo tribo;
     private string nivelScore;
     private int scoreAtual =1, scoreNextLevel = 2;
-
 
     public string Nivel
     {
@@ -54,21 +53,67 @@ public class ScoreManager : MonoBehaviour {
     public string SkillAgua
     {
         get {
-            return tribo.consumo_agua.ToString() + "/" + tribo.producao_agua.ToString();
+            return tribo.estacoes[0].consumo.ToString() + "/" + tribo.estacoes[0].producao.ToString();
         }
     }
 
     public string SkillEnergia
     {
         get {
-            return tribo.consumo_energia.ToString() + "/" + tribo.producao_energia.ToString();
+            return tribo.estacoes[3].consumo.ToString() + "/" + tribo.estacoes[3].producao.ToString();
         }
     }
 
     public string SkillComida
     {
         get {
-            return tribo.consumo_comida.ToString() + "/" + tribo.producao_comida.ToString();
+            return tribo.estacoes[1].consumo.ToString() + "/" + tribo.estacoes[1].producao.ToString();
+        }
+    }
+
+    public int ConsumoAgua {
+        get {
+            return tribo.estacoes[0].consumo;
+        }
+    }
+
+    public int ConsumoEnergia
+    {
+        get
+        {
+            return tribo.estacoes[3].consumo;
+        }
+    }
+
+    public int ConsumoComida
+    {
+        get
+        {
+            return tribo.estacoes[2].consumo;
+        }
+    }
+
+    public int ProducaoAgua
+    {
+        get
+        {
+            return tribo.estacoes[0].producao;
+        }
+    }
+
+    public int ProducaoEnergia
+    {
+        get
+        {
+            return tribo.estacoes[3].producao;
+        }
+    }
+
+    public int ProducaoComida
+    {
+        get
+        {
+            return tribo.estacoes[2].producao;
         }
     }
 
@@ -83,9 +128,21 @@ public class ScoreManager : MonoBehaviour {
         {
             Destroy(gameObject);
         }
-
-        tribo = TriboController.TriboPorId(1);
-
+        BuscarTribo();
     }
     
+    public static void BuscarTribo()
+    {
+        try
+        {
+            UIManager.erro.SetActive(false);
+            tribo = TriboController.TriboPorEmail("george.ifrn@gmail.com");
+        }
+        catch (Exception e)
+        {
+            tribo = new Tribo();
+            UIManager.instance.Erro(ScoreManager.BuscarTribo);
+        }
+    }
+
 }

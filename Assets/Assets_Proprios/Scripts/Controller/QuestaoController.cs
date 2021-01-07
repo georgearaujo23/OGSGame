@@ -11,17 +11,7 @@ namespace Controller
     {
         public static Questao questaoPorId(int id_questao)
         {
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create( String.Format(APIKey.URI + "questao/{0}", id_questao));
-            request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);
-            request.ContentType = "application/json";
-            request.AllowAutoRedirect = true;
-            request.Headers.Set("X-Token", PlayerPrefs.GetString("apikey")) ;
-            request.AuthenticationLevel = AuthenticationLevel.MutualAuthRequired;
-            
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            StreamReader reader = new StreamReader(response.GetResponseStream());
-            
-            string jsonResponse = reader.ReadToEnd();
+            var jsonResponse = APIRequest.Get(String.Format("questao/{0}", id_questao));
             var questao = JsonUtility.FromJson<Questao>(jsonResponse);
             return questao;
         }

@@ -1,7 +1,10 @@
 ﻿using Classes;
 using Controller;
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
+using System.Net;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -14,29 +17,64 @@ public class LoginManager : MonoBehaviour
     private InputField senha;
     [SerializeField]
     private Text erro;
+    [SerializeField]
+    private Image loadingImage;
+    [SerializeField]
+    private GameObject loadingPanel;
 
-    private Button btnEntrar;
-
-    private void Start()
+    private void FixedUpdate()
     {
-        btnEntrar = gameObject.GetComponentInChildren<Button>();
-        btnEntrar.onClick.AddListener(Login);
-    }
-
-    void Login()
-    {
-        Autentication aut = new Autentication();
-        ResponseAPI rApi = aut.Autenticar(email.text, senha.text);
-        if (rApi.status)
+        if (loadingImage.fillAmount > 0)
         {
-            SceneManager.LoadScene( 1);
+            loadingImage.fillAmount -= 1f / 60f;
         }
         else
         {
-            var audios = Camera.main.GetComponentsInChildren<AudioSource>();
-            audios[1].Play();
-            erro.text = rApi.message;
-            erro.enabled = true;
+            loadingImage.fillAmount = 1f;
         }
     }
+
+    public void Login()
+    {
+        loadingPanel.SetActive(true);
+        loadingImage.fillAmount = 1f;
+        new WaitForSeconds(0.3f);
+        StartCoroutine(Loading());
+        
+    }
+
+    private IEnumerator Loading()
+    {
+        
+        var audios = Camera.main.GetComponentsInChildren<AudioSource>();
+        try
+        {
+            APIRequest.Autenticar(email.text, senha.text);
+            AsyncOperation async = SceneManager.LoadSceneAsync(1);
+        }
+        catch (WebException webExcp)
+        {
+            erro.text = "Erro ao conectar ao servidor";
+            if (webExcp.Status == WebExceptionStatus.ProtocolError)
+            {
+                HttpWebResponse httpResponse = (HttpWebResponse)webExcp.Response;
+                StreamReader reader = new StreamReader(httpResponse.GetResponseStream());
+                erro.text = JsonUtility.FromJson<ResponseAPI>(reader.ReadToEnd()).message;
+            }
+            loadingPanel.SetActive(false);
+            audios[1].Play();
+            erro.enabled = true;
+
+        }
+        catch (Exception e)
+        {
+            loadingPanel.SetActive(false);
+            audios[1].Play();
+            erro.text = "Erro ao conectar ao servidor";
+            erro.enabled = true;
+        }
+        yield return null;
+    }
+
+
 }
