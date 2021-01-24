@@ -14,6 +14,9 @@ namespace Classes
         public int consumo;
         public int nivel;
         public int id_tribo;
-        public EstacaoTipo id_estacao_tipo;
+        public int id_estacao_tipo;
+        public int experiencia;
+        public int experiencia_prox;
+        public EstacaoTipo estacao_tipo;
     }
 }

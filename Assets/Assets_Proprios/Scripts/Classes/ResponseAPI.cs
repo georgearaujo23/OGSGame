@@ -11,6 +11,7 @@ namespace Classes
     class ResponseAPI
     {
         public string message = "Erro ao conectar ao servidor.";
+        public int codErro = 1;
         public bool status = true;
     }
 }

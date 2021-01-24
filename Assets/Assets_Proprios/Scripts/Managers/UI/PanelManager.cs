@@ -16,7 +16,17 @@ namespace Managers.UI
         // Use this for initialization
         void Start()
         {
-            btnFechar.onClick.AddListener(FecharPanel);
+            btnFechar.onClick.AddListener(delegate
+            {
+                FecharPanel();
+                Camera.main.GetComponents<AudioSource>()[2].Play();
+            });
+            Camera.main.GetComponentInParent<CameraManager>().estaAtivaMovimentacao = false;
+        }
+
+        private void FixedUpdate()
+        {
+            Camera.main.GetComponentInParent<CameraManager>().estaAtivaMovimentacao = !gameObject.active;
         }
 
         private void SetTitulo(string titulo)
@@ -26,6 +36,7 @@ namespace Managers.UI
             
         void FecharPanel()
         {
+            Camera.main.GetComponentInParent<CameraManager>().estaAtivaMovimentacao = true;
             gameObject.SetActive(false);
         }
     }

@@ -17,8 +17,14 @@ namespace Managers.UI
         void Start()
         {
             btnEstacao.onClick.AddListener(ExibirPanel);
-            btnDetalhes.onClick.AddListener(DetalhesEstacao);
-            btnMelhoria.onClick.AddListener(MelhoriaEstacao);
+            btnDetalhes.onClick.AddListener(delegate {
+                DetalhesEstacao();
+                Camera.main.GetComponents<AudioSource>()[2].Play();
+            });
+            btnMelhoria.onClick.AddListener(delegate {
+                MelhoriaEstacao();
+                Camera.main.GetComponents<AudioSource>()[2].Play();
+            });
         }
 
         void ExibirPanel()

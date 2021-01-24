@@ -10,6 +10,9 @@ namespace Classes
     class APIKey
     {
         public string API_CHAVE;
-        public static string URI = "https://192.168.0.100/";
+        //IFB
+        public static string URI = "https://api.guardioesdosaber.com.br/";
+        //LOCAL
+        //public static string URI = "https://localhost/";
     }
 }

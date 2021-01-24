@@ -8,6 +8,8 @@ public class CameraManager : MonoBehaviour {
     private Touch toque;
     private Vector2 positionInit, positionEnd;
     [SerializeField]  private float aspect = 1.66f;
+    public bool estaAtivaMovimentacao = true;
+    [SerializeField] private AudioClip ButtonClick;
     // Use this for initialization
     void Start () {
         transform.position = new Vector3(0, 0, 0);
@@ -16,7 +18,7 @@ public class CameraManager : MonoBehaviour {
 
     private void FixedUpdate()
     {
-        if (Input.touchCount > 0)
+        if (Input.touchCount > 0 && estaAtivaMovimentacao)
         {
             toque = Input.GetTouch(0);
             if (Input.GetTouch(0).phase == TouchPhase.Moved )
@@ -30,6 +32,7 @@ public class CameraManager : MonoBehaviour {
 
     }
     
+
     // Update is called once per frame
     void Update () {
         

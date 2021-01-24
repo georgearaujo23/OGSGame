@@ -38,7 +38,6 @@ public class LoginManager : MonoBehaviour
     {
         loadingPanel.SetActive(true);
         loadingImage.fillAmount = 1f;
-        new WaitForSeconds(0.3f);
         StartCoroutine(Loading());
         
     }
