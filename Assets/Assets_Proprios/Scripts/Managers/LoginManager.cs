@@ -49,7 +49,8 @@ public class LoginManager : MonoBehaviour
         try
         {
             APIRequest.Autenticar(email.text, senha.text);
-            AsyncOperation async = SceneManager.LoadSceneAsync(1);
+            ScoreManager.instance.BuscarTribo();
+            GameManager.instance.LoadTribo();
         }
         catch (WebException webExcp)
         {

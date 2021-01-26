@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
-namespace Assets.Assets_Proprios.Scripts.Controller
+namespace Controller
 {
     class EstacaoController
     {

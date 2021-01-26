@@ -177,14 +177,25 @@ public class ScoreManager : MonoBehaviour {
         {
             Destroy(gameObject);
         }
-        BuscarTribo();
+        try
+        {
+            instance.BuscarTribo();
+            GameManager.instance.LoadTribo();
+        }
+        catch (Exception e)
+        {
+            
+        }
+
+
+
     }
     
     public void BuscarTribo()
     {
         try
         {
-            tribo = TriboController.TriboPorEmail("george");
+            tribo = TriboController.TriboPorUsuario();
             UIManager.atualizarUI = true;
         }
         catch (Exception e)
@@ -204,7 +215,7 @@ public class ScoreManager : MonoBehaviour {
         }
         catch (Exception e)
         {
-            UIManager.Erro(ScoreManager.instance.BuscarTribo);
+            UIManager.Erro(ScoreManager.instance.RecarregarTribo);
         }
     }
 

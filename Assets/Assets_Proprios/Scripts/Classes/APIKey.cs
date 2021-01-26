@@ -9,10 +9,11 @@ namespace Classes
     [Serializable]
     class APIKey
     {
-        public string API_CHAVE;
+        public string apiToken;
+        public string apiRefreshToken;
         //IFB
-        public static string URI = "https://api.guardioesdosaber.com.br/";
+        //public static string URI = "https://api.guardioesdosaber.com.br/";
         //LOCAL
-        //public static string URI = "https://localhost/";
+        public static string URI = "https://localhost/";
     }
 }

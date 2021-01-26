@@ -13,87 +13,140 @@ namespace Classes
 {
     class APIRequest
     {
-        public static void Autenticar(string email, string senha)
+        protected static void VerifiarToken()
         {
-            var data_acesso = DateTime.Now;
-            ICredentials credencial = new NetworkCredential(email, senha);
-            HttpWebRequest requestAut = (HttpWebRequest)WebRequest.Create(String.Format(APIKey.URI + "auth?DATA_ACESSO={0}", data_acesso.ToString("yyyy/MM/dd")));
-            requestAut.PreAuthenticate = true;
-            requestAut.Credentials = credencial;
+            var resul = false;
+            if (!PlayerPrefs.HasKey("apiRefreshToken"))
+                resul = true;
+            if (PlayerPrefs.GetString("apiRefreshToken").Equals(String.Empty))
+                resul = true;
+            if (!PlayerPrefs.HasKey("apiToken"))
+                resul = true;
+            if (PlayerPrefs.GetString("apiToken").Equals(String.Empty))
+                resul = true;
+
+            if (resul)
+            {
+                GameManager.instance.Logoff();
+                throw new Exception("Usuário não logado");
+            }
+
+        }
+
+        public static void Autenticar(string usuario, string senha)
+        {
+            string postData = String.Format("user={0}&password={1}", usuario, senha);
+            Debug.Log(postData);
+            HttpWebRequest requestAut = (HttpWebRequest)WebRequest.Create(APIKey.URI + "auth");
             requestAut.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);
-            requestAut.ContentType = "application/json";
-            HttpWebResponse response2 = (HttpWebResponse)requestAut.GetResponse();
-            StreamReader reader = new StreamReader(response2.GetResponseStream());
+            requestAut.AllowAutoRedirect = true;
+            requestAut.AuthenticationLevel = AuthenticationLevel.MutualAuthRequired;
+            requestAut.Method = "POST";
+            byte[] data = Encoding.ASCII.GetBytes(postData);
+            requestAut.ContentType = "application/x-www-form-urlencoded";
+            requestAut.ContentLength = data.Length;
+
+            Stream requestStream = requestAut.GetRequestStream();
+            requestStream.Write(data, 0, data.Length);
+            requestStream.Close();
+            HttpWebResponse response = (HttpWebResponse)requestAut.GetResponse();
+            StreamReader reader = new StreamReader(response.GetResponseStream());
+
             var auth = reader.ReadToEnd();
             var apikey = JsonUtility.FromJson<APIKey>(auth);
-            Debug.Log(apikey.API_CHAVE);
-            PlayerPrefs.SetString("apikey", apikey.API_CHAVE);
-            PlayerPrefs.SetString("email", email);
+            Debug.Log(apikey.apiToken);
+            Debug.Log(apikey.apiRefreshToken);
+            PlayerPrefs.SetString("apiToken", apikey.apiToken);
+            PlayerPrefs.SetString("apiRefreshToken", apikey.apiRefreshToken);
+            PlayerPrefs.SetString("usuario", usuario);
             PlayerPrefs.SetString("senha", senha);
         }
 
-        public static string Get(string path)
+        public static bool RefreshAutenticacao()
         {
+            string postData = String.Format("refreshToken={0}", PlayerPrefs.GetString("apiRefreshToken"));
+
             try
             {
-                Debug.Log(APIKey.URI + path);
-                Debug.Log(PlayerPrefs.GetString("apikey"));
-                var email = "george";
-                var senha = "abc123456";
-                
-                if (!PlayerPrefs.HasKey("apikey"))
-                {
-                    if (PlayerPrefs.GetString("apikey") == String.Empty)
-                    {
-                        
-                        var a = new APIRequest();
-                        APIRequest.Autenticar(email, senha);
-                    }
-                }
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(APIKey.URI + path);
-                request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);       
-                request.ContentType = "application/json";
-                request.AllowAutoRedirect = true;
-                request.Headers.Set("X-Token", PlayerPrefs.GetString("apikey"));
-                request.AuthenticationLevel = AuthenticationLevel.MutualAuthRequired;
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                HttpWebRequest requestAut = (HttpWebRequest)WebRequest.Create(APIKey.URI + "refresh-token");
+                requestAut.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);
+                requestAut.AllowAutoRedirect = true;
+                requestAut.Method = "POST";
+                byte[] data = Encoding.ASCII.GetBytes(postData);
+                requestAut.ContentType = "application/json";
+                requestAut.ContentLength = data.Length;
+
+                Stream requestStream = requestAut.GetRequestStream();
+                requestStream.Write(data, 0, data.Length);
+                requestStream.Close();
+                HttpWebResponse response = (HttpWebResponse)requestAut.GetResponse();
                 StreamReader reader = new StreamReader(response.GetResponseStream());
-                var str = reader.ReadToEnd();
-                Debug.Log(str);
-                return str;
+
+                var auth = reader.ReadToEnd();
+                var apikey = JsonUtility.FromJson<APIKey>(auth);
+                Debug.Log(apikey.apiToken);
+                Debug.Log(apikey.apiRefreshToken);
+                PlayerPrefs.SetString("apiToken", apikey.apiToken);
+                PlayerPrefs.SetString("apiRefreshToken", apikey.apiRefreshToken);
+                return true;
             }
             catch (WebException webExcp)
             {
+
                 if (webExcp.Status == WebExceptionStatus.ProtocolError)
                 {
                     HttpWebResponse httpResponse = (HttpWebResponse)webExcp.Response;
-                    StreamReader reader = new StreamReader(httpResponse.GetResponseStream());
-                    var str = reader.ReadToEnd();
-                    Debug.Log(str);
-                    return str;
+                    
+                    Debug.Log("Status HTML: " + httpResponse.StatusCode);
                 }
                 Debug.Log(webExcp.Message);
-                return webExcp.Message;
+                return false;
 
             }
             catch (Exception e)
             {
                 Debug.Log(e.Message);
-                return e.Message;
+                return false;
+            }
+
+        }
+
+        public static string Get(string path)
+        {
+            VerifiarToken();
+            try
+            {
+                Debug.Log(APIKey.URI + path);
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(APIKey.URI + path);
+                request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);       
+                request.ContentType = "application/json";
+                request.AllowAutoRedirect = true;
+                request.Headers.Set("X-Token", PlayerPrefs.GetString("apiToken"));
+                request.AuthenticationLevel = AuthenticationLevel.MutualAuthRequired;
+                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+                StreamReader reader = new StreamReader(response.GetResponseStream());
+                var str = reader.ReadToEnd();
+                Debug.Log("Retorno API:" + str);
+                return str;
+            }
+            catch (WebException webExcp)
+            {
+                Debug.Log(webExcp.Message);
+                throw webExcp;
+
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e.Message);
+                throw e;
             }
         }
 
         public static string Post(string path, Dictionary<string, string> postParameters)
         {
+            VerifiarToken();
             try
             {
-                var email = "george";
-                var senha = "abc123456";
-                if (!PlayerPrefs.HasKey("apikey"))
-                {
-                    var a = new APIRequest();
-                    APIRequest.Autenticar(email, senha);
-                }
                 string postData = "";
 
                 foreach (string key in postParameters.Keys)
@@ -105,7 +158,7 @@ namespace Classes
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(APIKey.URI + path);
                 request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);
                 request.AllowAutoRedirect = true;
-                request.Headers.Set("X-Token", PlayerPrefs.GetString("apikey"));
+                request.Headers.Set("X-Token", PlayerPrefs.GetString("apiToken"));
                 request.AuthenticationLevel = AuthenticationLevel.MutualAuthRequired;
                 request.Method = "POST";
                 byte[] data = Encoding.ASCII.GetBytes(postData);
@@ -127,7 +180,6 @@ namespace Classes
                 return null;
             }
         }
-
 
     }
 }

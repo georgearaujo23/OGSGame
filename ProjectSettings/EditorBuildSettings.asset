@@ -6,6 +6,9 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
+    path: Assets/Assets_Proprios/Scenes/Loading.unity
+    guid: 0d9ed20b146299848985da06db32e2eb
+  - enabled: 1
     path: Assets/Assets_Proprios/Scenes/Login.unity
     guid: e16998b7be9a26e45b2e883da8a8c011
   - enabled: 1
@@ -14,9 +17,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Assets_Proprios/Scenes/Mapa.unity
     guid: ba52048a40858744bbcabe894b65f1ed
-  - enabled: 1
-    path: Assets/Assets_Proprios/Scenes/Estacao1.unity
-    guid: 0d9ed20b146299848985da06db32e2eb
   - enabled: 1
     path: Assets/Assets_Proprios/Scenes/Estacao2.unity
     guid: ec5a81fe22e9f944fbe3564298368bc4

@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Controller
 {
-    public  class QuestaoController
+    class QuestaoController
     {
         public static Questao questaoPorId(int id_questao)
         {

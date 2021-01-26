@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace Controller
 {
-    [Serializable]
-    public class QuestaoAlternativaController
+    class QuestaoAlternativaController
     {
 
     }

@@ -28,7 +28,6 @@ namespace Managers.UI
         // Use this for initialization
         void Start()
         {
-
             Camera.main.projectionMatrix = Matrix4x4.Ortho(orthoSize * -aspect, orthoSize * aspect, -orthoSize, orthoSize, Camera.main.nearClipPlane, Camera.main.farClipPlane);
             mapa.onClick.AddListener(delegate
             {
@@ -80,7 +79,7 @@ namespace Managers.UI
 
         void FixedUpdate()
         {
-            if (SceneManager.GetActiveScene().buildIndex == 1 && atualizarUI)
+            if (UIManager.atualizarUI)
             {
                 PreencherScoresUI();
             }

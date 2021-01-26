@@ -39,9 +39,7 @@ namespace UI
 
         void Sair()
         {
-            PlayerPrefs.DeleteAll();
-            PlayerPrefs.Save();
-            SceneManager.LoadSceneAsync(0);
+            GameManager.instance.Logoff();
         }
 
     }
