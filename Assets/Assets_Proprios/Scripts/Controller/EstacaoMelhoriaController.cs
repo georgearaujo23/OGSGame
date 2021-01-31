@@ -11,9 +11,9 @@ namespace Controller
 {
     class EstacaoMelhoriaController
     {
-        public static List<EstacaoMelhoria> ConsultarEstacaoMelhoria(int id_estacao_tipo, int nivelEstacao)
+        public static List<EstacaoMelhoria> Consultar(int id_estacao_tipo, int sabedoria)
         {
-            var jsonResponse = APIRequest.Get(String.Format("estacaomelhoriaPorTipoNivel?id_estacao_tipo={0}&nivel={1}", id_estacao_tipo, nivelEstacao));
+            var jsonResponse = APIRequest.Get(String.Format("estacaoMelhoriaPorSabedoria?id_estacao_tipo={0}&sabedoria={1}", id_estacao_tipo, sabedoria));
             var esMelhorias = JsonUtility.FromJson<EstacaoMelhoriaContainer>(jsonResponse).melhorias;
             return esMelhorias;
         }

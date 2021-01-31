@@ -10,11 +10,12 @@ namespace Controller
 {
     class EstacaoController
     {
-        public static List<Estacao> estacoesPorTribo(int id_tribo)
+        public static List<Estacao> ConsultarPorIdTribo(int id_tribo)
         {
             var jsonResponse = APIRequest.Get(String.Format("estacoes/{0}", id_tribo));
             var estacoes = JsonUtility.FromJson<List<Estacao>>(jsonResponse);
             return estacoes;
         }
+
     }
 }

@@ -1,4 +1,5 @@
 ﻿using Classes;
+using SceneLoading;
 using System;
 using System.IO;
 using System.Net;
@@ -8,14 +9,14 @@ namespace Controller
 {
     class TriboController
     {
-        public static Tribo TriboPorId(int id_tribo)
+        public static Tribo ConsultarPorId(int id_tribo)
         {
             var jsonResponse = APIRequest.Get(String.Format("tribo/{0}", id_tribo));
             var tribo = JsonUtility.FromJson<Tribo>(jsonResponse);
             return tribo;
         }
 
-        public static Tribo TriboPorUsuario()
+        public static Tribo ConsultarPorUsuario()
         {
             if (!PlayerPrefs.HasKey("usuario")) {
                 GameManager.instance.Logoff();
@@ -26,7 +27,7 @@ namespace Controller
                 throw new Exception("Usuário não logado");
             }
            
-            string path = String.Format("triboPorEmail/{0}", PlayerPrefs.GetString("usuario"));
+            string path = String.Format("triboPorUsuario/{0}", PlayerPrefs.GetString("usuario"));
             try
             {
                 var jsonResponse = APIRequest.Get(path);

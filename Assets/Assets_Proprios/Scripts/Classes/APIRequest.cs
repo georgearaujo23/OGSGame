@@ -1,13 +1,11 @@
 ﻿using System;
-using Classes;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
 using System.Net.Security;
+using SceneLoading;
 
 namespace Classes
 {
@@ -68,7 +66,7 @@ namespace Classes
 
             try
             {
-                HttpWebRequest requestAut = (HttpWebRequest)WebRequest.Create(APIKey.URI + "refresh-token");
+                HttpWebRequest requestAut = (HttpWebRequest)WebRequest.Create(APIKey.URI + "refreshToken");
                 requestAut.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);
                 requestAut.AllowAutoRedirect = true;
                 requestAut.Method = "POST";
@@ -116,7 +114,7 @@ namespace Classes
             VerifiarToken();
             try
             {
-                Debug.Log(APIKey.URI + path);
+                Debug.Log("URL+PATH: " + APIKey.URI + path);
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(APIKey.URI + path);
                 request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);       
                 request.ContentType = "application/json";
@@ -126,7 +124,7 @@ namespace Classes
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 StreamReader reader = new StreamReader(response.GetResponseStream());
                 var str = reader.ReadToEnd();
-                Debug.Log("Retorno API:" + str);
+                Debug.Log("GET Retorno API:" + str);
                 return str;
             }
             catch (WebException webExcp)
@@ -154,7 +152,7 @@ namespace Classes
                     postData += key + "="
                           + postParameters[key] + "&";
                 }
-
+                Debug.Log(APIKey.URI + path + postData);
                 HttpWebRequest request = (HttpWebRequest)WebRequest.Create(APIKey.URI + path);
                 request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);
                 request.AllowAutoRedirect = true;
@@ -172,7 +170,15 @@ namespace Classes
                 
                 HttpWebResponse response = (HttpWebResponse)request.GetResponse();
                 StreamReader reader = new StreamReader(response.GetResponseStream());
-                return reader.ReadToEnd();
+                var str = reader.ReadToEnd();
+                Debug.Log("POST Retorno API:" + str);
+                return str;
+            }
+            catch (WebException webExcp)
+            {
+                Debug.Log(webExcp.Message);
+                return null;
+
             }
             catch (Exception e)
             {

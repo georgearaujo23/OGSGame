@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Classes
 {
@@ -14,6 +10,6 @@ namespace Classes
         //IFB
         //public static string URI = "https://api.guardioesdosaber.com.br/";
         //LOCAL
-        public static string URI = "https://localhost/";
+        public static string URI = "https://192.168.0.100/";
     }
 }

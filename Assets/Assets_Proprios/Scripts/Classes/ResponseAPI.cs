@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 
 namespace Classes
 {
@@ -12,6 +7,5 @@ namespace Classes
     {
         public string message = "Erro ao conectar ao servidor.";
         public int codErro = 1;
-        public bool status = true;
     }
 }
