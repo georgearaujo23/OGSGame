@@ -51,7 +51,6 @@ namespace SceneDesafio
             StartCoroutine(Temporizador());
         }
 
-
         void CarregarAlternativas(Questao questao, bool ultima)
         {
             LimparAlternativas();
@@ -104,6 +103,7 @@ namespace SceneDesafio
                 }
                 else
                 {
+                    ScoreManager.instance.RecarregarTribo();
                     gameObject.SetActive(false);
                     panelResultado.SetActive(true);
                     var texts = panelResultado.GetComponentsInChildren<Text>();

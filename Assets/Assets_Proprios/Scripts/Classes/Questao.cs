@@ -9,6 +9,7 @@ namespace Classes
         public int id_questao;
         public string enunciado;
         public int id_assunto;
+        public int nivel;
         public List<QuestaoAlternativa> alternativas;
     }
 }

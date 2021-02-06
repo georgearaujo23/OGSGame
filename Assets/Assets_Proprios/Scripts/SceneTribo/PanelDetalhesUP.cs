@@ -1,6 +1,7 @@
 ﻿using Classes;
 using Controller;
 using SceneLoading;
+using System;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -13,65 +14,80 @@ namespace Managers.UI
         [SerializeField] private GameObject ContentValores ;
         [SerializeField] private GameObject panelCustos;
         [SerializeField] private UIEstacaoManager uiEstacaoManager;
+        [SerializeField]
+        private Sprite imgComida, imgAgua, imgEnergia,
+            imgMoeda, imgSustentavel, imgSabedoria, imgReputacao;
+        private int id_estacao_tipo, id_estacao_melhoria;
+        private bool temSaldoRecursos = false;
 
         public void SetValores (EstacaoMelhoria em, UIEstacaoManager uie)
         {
             uiEstacaoManager = uie;
+            btnConfirmar.image.sprite = btnConfirmar.spriteState.highlightedSprite;
             LimparValores();
-
-            if (uiEstacaoManager.EstaConstruindo)
-            {
-                btnConfirmar.enabled = true;
-                btnConfirmar.image.sprite = btnConfirmar.spriteState.disabledSprite;
-            }
 
             btnConfirmar.onClick.AddListener(delegate {
                 Confirmar(em);
-                AudioManager.instance.PlayConstrucao();
             });
             txtTexto.text = em.descricao;
             txtTexto.pageToDisplay = 1;
             txtTexto.ForceMeshUpdate();
             txtPaginacao.text = txtTexto.pageToDisplay.ToString() + "/" + txtTexto.textInfo.pageCount;
 
+            var visivel = Math.Abs(em.comida) < ScoreManager.instance.ConsumoComida ||
+                em.comida > 0;
+            temSaldoRecursos = visivel;
+            CriarPanelRecurso(imgComida, em.comida.ToString(), visivel);
 
+            visivel = Math.Abs(em.agua) < ScoreManager.instance.ConsumoAgua ||
+                    em.agua > 0;
+            temSaldoRecursos = temSaldoRecursos && visivel;
+            CriarPanelRecurso(imgAgua, em.agua.ToString(), visivel);
 
+            visivel = Math.Abs(em.energia) < ScoreManager.instance.ConsumoEnergia ||
+                    em.energia > 0;
+            temSaldoRecursos = temSaldoRecursos && visivel;
+            CriarPanelRecurso(imgEnergia, em.energia.ToString(), visivel);
+
+            visivel = Math.Abs(em.custo_moedas) < ScoreManager.instance.Moedas;
+            temSaldoRecursos = temSaldoRecursos && visivel;
+            CriarPanelRecurso(imgMoeda, em.custo_moedas.ToString(), visivel);
+
+            CriarPanelRecurso(imgReputacao, em.populacao.ToString(), true);
+            CriarPanelRecurso(imgSustentavel, em.sustentabilidade.ToString(), true);
+            if(em.id_estacao_tipo == 3)
+            {
+                visivel = Math.Abs(em.sabedoria_pesquisa) < ScoreManager.instance.SabedoriaSaldo;
+                temSaldoRecursos = temSaldoRecursos && visivel;
+                CriarPanelRecurso(imgSabedoria, em.sabedoria_pesquisa.ToString(), visivel);
+            }
+            else
+            {
+                CriarPanelRecurso(imgSabedoria, em.sabedoria.ToString(), true);
+            }
+
+            if (uiEstacaoManager.EstaConstruindo || !temSaldoRecursos)
+            {
+                btnConfirmar.enabled = false;
+                btnConfirmar.image.sprite = btnConfirmar.spriteState.disabledSprite;
+            }
+            else
+            {
+                btnConfirmar.enabled = true;
+                btnConfirmar.image.sprite = btnConfirmar.spriteState.highlightedSprite;
+            }
+
+        }
+
+        void CriarPanelRecurso(Sprite sprite, string valor, bool visivel)
+        {
             var pc = Instantiate(panelCustos, ContentValores.transform);
-            var texts = pc.GetComponentsInChildren<Text>();
-            texts[0].text = "Comida";
-            texts[1].text = em.comida.ToString();
-            texts[1].color = em.comida > 0 ? Color.blue : Color.red;
-
-            pc = Instantiate(panelCustos, ContentValores.transform);
-            texts = pc.GetComponentsInChildren<Text>();
-            texts[0].text = "Água";
-            texts[1].text = em.agua.ToString();
-            texts[1].color = em.agua > 0 ? Color.blue : Color.red;
-
-            pc = Instantiate(panelCustos, ContentValores.transform);
-            texts = pc.GetComponentsInChildren<Text>();
-            texts[0].text = "Energia";
-            texts[1].text = em.energia.ToString();
-            texts[1].color = em.energia > 0 ? Color.blue : Color.red;
-
-            pc = Instantiate(panelCustos, ContentValores.transform);
-            texts = pc.GetComponentsInChildren<Text>();
-            texts[0].text = "Moedas";
-            texts[1].text = em.custo_moedas.ToString();
-            texts[1].color = em.custo_moedas > 0 ? Color.blue : Color.red;
-
-            pc = Instantiate(panelCustos, ContentValores.transform);
-            texts = pc.GetComponentsInChildren<Text>();
-            texts[0].text = "Reputação";
-            texts[1].text = em.populacao.ToString();
-            texts[1].color = em.populacao > 0 ? Color.blue : Color.red;
-
-            pc = Instantiate(panelCustos, ContentValores.transform);
-            texts = pc.GetComponentsInChildren<Text>();
-            texts[0].text = "Sustentabilidade";
-            texts[1].text = em.sustentabilidade.ToString();
-            texts[1].color = em.sustentabilidade > 0 ? Color.blue : Color.red ;
-
+            var texto = pc.GetComponentInChildren<Text>();
+            var imgs = pc.GetComponentsInChildren<Image>();
+            texto.text = valor;
+            imgs[1].sprite = sprite;
+            imgs[1].preserveAspect = true;
+            texto.color = visivel ? Color.blue : Color.red;
         }
 
         public void LimparValores()
@@ -89,17 +105,32 @@ namespace Managers.UI
 
         void Confirmar(EstacaoMelhoria em)
         {
-            if (!uiEstacaoManager.EstaConstruindo)
+            try
+            { 
+                if (!uiEstacaoManager.EstaConstruindo)
+                {
+                    id_estacao_tipo = em.id_estacao_tipo;
+                    id_estacao_melhoria = em.id_estacao_melhoria;
+                    RegistraMelhoria();
+                }
+            }
+            catch (Exception e)
             {
                 btnConfirmar.enabled = true;
-                btnConfirmar.image.sprite = btnConfirmar.spriteState.disabledSprite;
-                var id_estacao = ScoreManager.instance.GetIdEstacao(em.id_estacao_tipo);
-                var tribo = EstacaoMelhoriaEstacaoController.Inserir(id_estacao, em.id_estacao_melhoria);
-                ScoreManager.instance.Tribo = tribo;
-                uiEstacaoManager.VerificarMelhoria();
-                uiEstacaoManager.EstaConstruindo = true;
-            }   
+                btnConfirmar.image.sprite = btnConfirmar.spriteState.highlightedSprite;
+                ScoreManager.instance.ExibirPanelErro(RegistraMelhoria, e.Message);
+            }
         }
 
+        private void RegistraMelhoria()
+        {
+            btnConfirmar.enabled = false;
+            btnConfirmar.image.sprite = btnConfirmar.spriteState.disabledSprite;
+            var id_estacao = ScoreManager.instance.GetIdEstacao(id_estacao_tipo);
+            var tribo = EstacaoMelhoriaEstacaoController.Inserir(id_estacao, id_estacao_melhoria);
+            ScoreManager.instance.Tribo = tribo;
+            AudioManager.instance.PlayConstrucao();
+            uiEstacaoManager.VerificarMelhoria();
+        }
     }
 }

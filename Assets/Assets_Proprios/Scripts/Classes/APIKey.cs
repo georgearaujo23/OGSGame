@@ -8,8 +8,8 @@ namespace Classes
         public string apiToken;
         public string apiRefreshToken;
         //IFB
-        //public static string URI = "https://api.guardioesdosaber.com.br/";
+        public static string URI = "https://api.guardioesdosaber.com.br/";
         //LOCAL
-        public static string URI = "https://192.168.0.100/";
+        //public static string URI = "https://192.168.0.100/index.php/";
     }
 }

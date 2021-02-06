@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,7 +15,7 @@ public class CameraManager : MonoBehaviour {
     // Use this for initialization
     void Start () {
         transform.position = new Vector3(0, 0, 0);
-        Camera.main.projectionMatrix = Matrix4x4.Ortho(-Camera.main.orthographicSize * aspect, Camera.main.orthographicSize * aspect, -Camera.main.orthographicSize, Camera.main.orthographicSize, Camera.main.nearClipPlane, Camera.main.farClipPlane);
+        //Camera.main.projectionMatrix = Matrix4x4.Ortho(-Camera.main.orthographicSize * aspect, Camera.main.orthographicSize * aspect, -Camera.main.orthographicSize, Camera.main.orthographicSize, Camera.main.nearClipPlane, Camera.main.farClipPlane);
 	}
 
     private void FixedUpdate()
@@ -30,13 +31,6 @@ public class CameraManager : MonoBehaviour {
             }
 
         }
-
-    }
-    
-
-    // Update is called once per frame
-    void Update () {
-        
 
     }
 

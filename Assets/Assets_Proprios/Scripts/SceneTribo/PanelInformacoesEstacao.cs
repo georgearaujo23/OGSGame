@@ -1,16 +1,6 @@
-﻿using Classes;
-using Controller;
+﻿using Controller;
 using SceneLoading;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Text;
-using System.Threading.Tasks;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
 namespace Managers.UI
@@ -19,7 +9,8 @@ namespace Managers.UI
     {
         [SerializeField] private GameObject panelBotoes, panelInformacoesDetalhes;
         [SerializeField] private Button pfBtnOpcao;
-        private Button btnFuncionamento, btnInformacoes, btnMelhorias, btnDesafios;
+        private Button btnFuncionamento, btnInformacoes, 
+            btnMelhorias, btnDesafios, btnBonificacoes;
 
         public void PreencherInformacoesEstacao(int id_estacao_tipo)
         {
@@ -70,6 +61,14 @@ namespace Managers.UI
                 AudioManager.instance.PlayButtonClick();
                 AlterarSpriteBotoes(4);
                 GameManager.instance.LoadDesafios();
+            });
+
+            btnBonificacoes = Instantiate(pfBtnOpcao, panelBotoes.transform);
+            btnBonificacoes.GetComponentInChildren<Text>().text = "Bonificações";
+            btnBonificacoes.onClick.AddListener(delegate {
+                AudioManager.instance.PlayButtonClick();
+                ScoreManager.instance.ExibirBonificacoes();
+                GetComponentInParent<PanelManager>().gameObject.SetActive(false);
             });
         }
 

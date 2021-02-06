@@ -18,6 +18,9 @@ EditorBuildSettings:
     path: Assets/Assets_Proprios/Scenes/Desafios.unity
     guid: 4f75cda23f1d7b24e8ffaa8d513f12af
   - enabled: 1
+    path: Assets/Assets_Proprios/Scenes/Rakings.unity
+    guid: ce4f395800711a14caf65affb7369f48
+  - enabled: 1
     path: Assets/Assets_Proprios/Scenes/Mapa.unity
     guid: ba52048a40858744bbcabe894b65f1ed
   m_configObjects: {}

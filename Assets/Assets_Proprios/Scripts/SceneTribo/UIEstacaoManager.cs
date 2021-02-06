@@ -15,7 +15,7 @@ namespace Managers.UI
         [SerializeField] private Button btnEstacao, btnDetalhes, btnMelhoria;
         [SerializeField] private int idEstacaoTipo;
         [SerializeField] private GameObject panelInfo, panelUp, timer;
-        [SerializeField] private Text txtTime, txtNivel;
+        [SerializeField] private Text txtTime;
         [SerializeField] private Image imgTimeFilled;
         private bool estaConstruindo = false;
         private Estacao estacao;
@@ -30,7 +30,7 @@ namespace Managers.UI
         // Use this for initialization
         void Start()
         {
-
+            StopCoroutine(ITimer());
             btnEstacao.onClick.AddListener(ExibirPanel);
 
             btnDetalhes.onClick.AddListener(delegate {
@@ -42,19 +42,26 @@ namespace Managers.UI
                 AudioManager.instance.PlayButtonClick();
             });
             estacao = ScoreManager.instance.GetEstacaoPorTipo(idEstacaoTipo);
-            txtNivel.text = estacao.nivel.ToString();
             VerificarMelhoria();
         }
 
         public void VerificarMelhoria()
         {
-            estacaoMelhoriaEstacao = EstacaoMelhoriaEstacaoController.ConsultarEstacaoEmConstrucao(estacao.id_estacao);
-            if (!(estacaoMelhoriaEstacao is null)) {
-                if (!estaConstruindo && estacaoMelhoriaEstacao.estaConstruindo)
+            try
+            {
+                estacaoMelhoriaEstacao = EstacaoMelhoriaEstacaoController.ConsultarEstacaoEmConstrucao(estacao.id_estacao);
+                if (!(estacaoMelhoriaEstacao is null))
                 {
-                    estaConstruindo = true;
-                    StartCoroutine(ITimer());
+                    if (!estaConstruindo && estacaoMelhoriaEstacao.esta_construindo)
+                    {
+                        estaConstruindo = true;
+                        StartCoroutine(ITimer());
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                ScoreManager.instance.ExibirPanelErro(VerificarMelhoria, e.Message);
             }
         }
 
@@ -65,35 +72,59 @@ namespace Managers.UI
 
         void DetalhesEstacao()
         {
-            panelInfo.GetComponent<PanelEstacao>().Abrir(idEstacaoTipo, this);
+            try
+            {
+                panelInfo.GetComponent<PanelEstacao>().Abrir(idEstacaoTipo, this);
+            }
+            catch (Exception e)
+            {
+                ScoreManager.instance.ExibirPanelErro(DetalhesEstacao, e.Message);
+            }
         }
 
         void MelhoriaEstacao()
         {
-            panelUp.GetComponent<PanelEstacao>().Abrir(idEstacaoTipo, this);
+            try
+            {
+                panelUp.GetComponent<PanelEstacao>().Abrir(idEstacaoTipo, this);
+            }
+            catch (Exception e)
+            {
+                ScoreManager.instance.ExibirPanelErro(MelhoriaEstacao, e.Message);
+            }
         }
 
         private IEnumerator ITimer()
         {
             timer.SetActive(true);
-            var tempo = DateTime.Parse(estacaoMelhoriaEstacao.fimConstrucao).Subtract(DateTime.UtcNow);
-            var tempoInicial = float.Parse(DateTime.Parse(estacaoMelhoriaEstacao.fimConstrucao).Subtract(DateTime.Parse(estacaoMelhoriaEstacao.inicioConstrucao)).TotalSeconds.ToString());
+            var tempo = DateTime.Parse(estacaoMelhoriaEstacao.fim_construcao).Subtract(DateTime.UtcNow);
+            var tempoInicial = float.Parse(DateTime.Parse(estacaoMelhoriaEstacao.fim_construcao).Subtract(DateTime.Parse(estacaoMelhoriaEstacao.inicio_construcao)).TotalSeconds.ToString());
 
-            while (tempo.TotalSeconds > 0) {
+            while (tempo.TotalSeconds > 0)
+            {
                 txtTime.text = tempo.ToString(@"hh\:mm\:ss");
-                imgTimeFilled.fillAmount = float.Parse(tempo.TotalSeconds.ToString())/tempoInicial;
+                imgTimeFilled.fillAmount = float.Parse(tempo.TotalSeconds.ToString()) / tempoInicial;
                 yield return new WaitForSeconds(1);
-                tempo = DateTime.Parse(estacaoMelhoriaEstacao.fimConstrucao).Subtract(DateTime.UtcNow);
+                tempo = DateTime.Parse(estacaoMelhoriaEstacao.fim_construcao).Subtract(DateTime.UtcNow);
             }
-            timer.SetActive(false);
-            ScoreManager.instance.Tribo =
-                EstacaoMelhoriaEstacaoController.AtualizarConstrucao(
-                    estacaoMelhoriaEstacao.id_estacao_melhoria_estacao);
-            AudioManager.instance.PlayConstrucaoUP();
-            estacaoMelhoriaEstacao.estaConstruindo = false;
-            estaConstruindo = false;
+            try
+            {
+                timer.SetActive(false);
+                ScoreManager.instance.Tribo =
+                    EstacaoMelhoriaEstacaoController.AtualizarConstrucao(
+                        estacaoMelhoriaEstacao.id_estacao_melhoria_estacao);
+                AudioManager.instance.PlayConstrucaoUP();
+                estacaoMelhoriaEstacao.esta_construindo = false;
+                estaConstruindo = false;
+            }
+            catch (Exception e)
+            {
+                estaConstruindo = false;
+                ScoreManager.instance.ExibirPanelErro(VerificarMelhoria, e.Message);
+                yield break;
+            }
             yield return null;
         }
 
-    }
+        }
 }

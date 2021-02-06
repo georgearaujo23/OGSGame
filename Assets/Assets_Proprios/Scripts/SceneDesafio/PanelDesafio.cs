@@ -23,7 +23,7 @@ namespace SceneDesafio
         [SerializeField]
         private Button botaoBonificacao;
         [SerializeField]
-        private Sprite moedas, sabedoria;
+        private Sprite spriteMoedas, spriteSabedoria, spriteXP;
 
         private void Start()
         {
@@ -53,23 +53,21 @@ namespace SceneDesafio
                 textos[2].text = desafio.quantidade_questoes.ToString();
                 textos[4].text = desafio.quantidade_acertos.ToString();
                 textos[6].text = DateTime.Parse(desafio.data_inicio).ToString("dd/MM/yyyy") + " - " + DateTime.Parse(desafio.data_fim).ToString("dd/MM/yyyy");
-                if (desafio.moedas > 0)
-                {
-                    var btnMoedas = Instantiate(botaoBonificacao, panelBonificacoes.transform);
-                    btnMoedas.image.sprite = moedas;
-                }
 
-                if (desafio.sabedoria > 0)
-                {
-                    var btnSabedoria = Instantiate(botaoBonificacao, panelBonificacoes.transform);
-                    btnSabedoria.image.sprite = sabedoria;
-                }
+                var btnMoedas = Instantiate(botaoBonificacao, panelBonificacoes.transform);
+                btnMoedas.image.sprite = spriteMoedas;
+                var Text = btnMoedas.GetComponentInChildren<Text>();
+                Text.text = "+" + desafio.moedas;
 
-                if (desafio.xp > 0)
-                {
-                    var btnXP = Instantiate(botaoBonificacao, panelBonificacoes.transform);
-                    btnXP.image.sprite = sabedoria;
-                }
+                var btnSabedoria = Instantiate(botaoBonificacao, panelBonificacoes.transform);
+                btnSabedoria.image.sprite = spriteSabedoria;
+                Text = btnSabedoria.GetComponentInChildren<Text>();
+                Text.text = "+" + desafio.sabedoria;
+
+                var btnXP = Instantiate(botaoBonificacao, panelBonificacoes.transform);
+                btnXP.image.sprite = spriteXP;
+                Text = btnXP.GetComponentInChildren<Text>();
+                Text.text = "+" + desafio.xp;
 
             }
 

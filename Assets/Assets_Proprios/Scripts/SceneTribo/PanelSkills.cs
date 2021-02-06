@@ -15,7 +15,7 @@ namespace UI
         [SerializeField] private GameObject scroolMelhorias, content;
         [SerializeField] private GameObject panelTribo, panelConfiguracao;
         [SerializeField] private Button pfBtnOpcao;
-        private Button btnTribo, btnConfiguracao;
+        private Button btnTribo, btnConfiguracao, btnRanking;
 
         private void Start()
         {
@@ -25,6 +25,14 @@ namespace UI
             btnTribo.onClick.AddListener(delegate {
                 ExibirPanel(1);
                 AudioManager.instance.PlayButtonClick();
+            });
+
+            btnRanking = Instantiate(pfBtnOpcao, content.transform);
+            btnRanking.GetComponentInChildren<Text>().text = "Ranking";
+            btnRanking.onClick.AddListener(delegate {
+                btnRanking.enabled = false;
+                AudioManager.instance.PlayButtonClick();
+                GameManager.instance.LoadRanking();
             });
 
             btnConfiguracao = Instantiate(pfBtnOpcao, content.transform);

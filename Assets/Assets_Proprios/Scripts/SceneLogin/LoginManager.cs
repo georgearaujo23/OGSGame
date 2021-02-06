@@ -1,10 +1,12 @@
 ﻿using Classes;
+using Controller;
 using SceneLoading;
 using System;
 using System.Collections;
 using System.IO;
 using System.Net;
 using UnityEngine;
+using UnityEngine.Analytics;
 using UnityEngine.UI;
 
 namespace SceneLogin
@@ -46,12 +48,28 @@ namespace SceneLogin
         {
             try
             {
-                APIRequest.Autenticar(usuario.text, senha.text);
-                ScoreManager.instance.BuscarTribo();
-                GameManager.instance.LoadTribo();
+                var versao = VersaoApkController.ConsultarVersaoAtiva();
+                if (!Application.version.Equals(versao.numero))
+                {
+                    ScoreManager.instance.ExibirPanelErro(GameManager.instance.Logoff, "Existe uma nova atualização do jogo. Baixe a nova versão e instale para continuar jogando");
+
+                }
+                else
+                {
+                    APIRequest.Autenticar(usuario.text, senha.text);
+                    ScoreManager.instance.BuscarTribo();
+                    if (PlayerPrefs.HasKey("usuario"))
+                    {
+                        AnalyticsSessionInfo.customUserId = PlayerPrefs.GetString("usuario");
+                        GameManager.instance.AdicionarEventoAnalytics("Login", "Usuario", PlayerPrefs.GetString("usuario"));
+                    }
+                    GameManager.instance.LoadTribo();
+                }
+                
             }
             catch (WebException webExcp)
             {
+                
                 erro.text = "Erro ao conectar ao servidor";
                 if (webExcp.Status == WebExceptionStatus.ProtocolError)
                 {
@@ -59,7 +77,10 @@ namespace SceneLogin
                     StreamReader reader = new StreamReader(httpResponse.GetResponseStream());
                     var str = reader.ReadToEnd();
                     Debug.Log(str);
-                    erro.text = JsonUtility.FromJson<ResponseAPI>(str).message;
+                    if (!str.Equals(String.Empty))
+                    {
+                        erro.text = JsonUtility.FromJson<ResponseAPI>(str).message;
+                    }
                 }
                 loadingPanel.SetActive(false);
                 AudioManager.instance.PlayErro();

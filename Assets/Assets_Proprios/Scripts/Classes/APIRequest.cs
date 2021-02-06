@@ -52,8 +52,6 @@ namespace Classes
 
             var auth = reader.ReadToEnd();
             var apikey = JsonUtility.FromJson<APIKey>(auth);
-            Debug.Log(apikey.apiToken);
-            Debug.Log(apikey.apiRefreshToken);
             PlayerPrefs.SetString("apiToken", apikey.apiToken);
             PlayerPrefs.SetString("apiRefreshToken", apikey.apiRefreshToken);
             PlayerPrefs.SetString("usuario", usuario);
@@ -94,7 +92,7 @@ namespace Classes
                 if (webExcp.Status == WebExceptionStatus.ProtocolError)
                 {
                     HttpWebResponse httpResponse = (HttpWebResponse)webExcp.Response;
-                    
+
                     Debug.Log("Status HTML: " + httpResponse.StatusCode);
                 }
                 Debug.Log(webExcp.Message);
@@ -112,79 +110,64 @@ namespace Classes
         public static string Get(string path)
         {
             VerifiarToken();
-            try
-            {
-                Debug.Log("URL+PATH: " + APIKey.URI + path);
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(APIKey.URI + path);
-                request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);       
-                request.ContentType = "application/json";
-                request.AllowAutoRedirect = true;
-                request.Headers.Set("X-Token", PlayerPrefs.GetString("apiToken"));
-                request.AuthenticationLevel = AuthenticationLevel.MutualAuthRequired;
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-                var str = reader.ReadToEnd();
-                Debug.Log("GET Retorno API:" + str);
-                return str;
-            }
-            catch (WebException webExcp)
-            {
-                Debug.Log(webExcp.Message);
-                throw webExcp;
+            Debug.Log("URL+PATH: " + APIKey.URI + path);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(APIKey.URI + path);
+            request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);       
+            request.ContentType = "application/json";
+            request.AllowAutoRedirect = true;
+            request.Headers.Set("X-Token", PlayerPrefs.GetString("apiToken"));
+            request.AuthenticationLevel = AuthenticationLevel.MutualAuthRequired;
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            StreamReader reader = new StreamReader(response.GetResponseStream());
+            var str = reader.ReadToEnd();
+            Debug.Log("GET Retorno API:" + str);
+            return str;
+        }
 
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
-                throw e;
-            }
+        public static string GetSemToken(string path)
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(APIKey.URI + path);
+            request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);
+            request.ContentType = "application/json";
+            request.AllowAutoRedirect = true;
+            request.AuthenticationLevel = AuthenticationLevel.MutualAuthRequired;
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            StreamReader reader = new StreamReader(response.GetResponseStream());
+            var str = reader.ReadToEnd();
+            return str;
         }
 
         public static string Post(string path, Dictionary<string, string> postParameters)
         {
             VerifiarToken();
-            try
+            string postData = "";
+
+            foreach (string key in postParameters.Keys)
             {
-                string postData = "";
+                postData += key + "="
+                        + postParameters[key] + "&";
+            }
+            Debug.Log(APIKey.URI + path + postData);
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(APIKey.URI + path);
+            request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);
+            request.AllowAutoRedirect = true;
+            request.Headers.Set("X-Token", PlayerPrefs.GetString("apiToken"));
+            request.AuthenticationLevel = AuthenticationLevel.MutualAuthRequired;
+            request.Method = "POST";
+            byte[] data = Encoding.ASCII.GetBytes(postData);
+            request.ContentType = "application/x-www-form-urlencoded";
+            request.ContentLength = data.Length;
 
-                foreach (string key in postParameters.Keys)
-                {
-                    postData += key + "="
-                          + postParameters[key] + "&";
-                }
-                Debug.Log(APIKey.URI + path + postData);
-                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(APIKey.URI + path);
-                request.ServerCertificateValidationCallback = new RemoteCertificateValidationCallback(CertificadoOGS.validador);
-                request.AllowAutoRedirect = true;
-                request.Headers.Set("X-Token", PlayerPrefs.GetString("apiToken"));
-                request.AuthenticationLevel = AuthenticationLevel.MutualAuthRequired;
-                request.Method = "POST";
-                byte[] data = Encoding.ASCII.GetBytes(postData);
-                request.ContentType = "application/x-www-form-urlencoded";
-                request.ContentLength = data.Length;
-
-                Stream requestStream = request.GetRequestStream();
-                requestStream.Write(data, 0, data.Length);
-                requestStream.Close();
+            Stream requestStream = request.GetRequestStream();
+            requestStream.Write(data, 0, data.Length);
+            requestStream.Close();
 
                 
-                HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-                StreamReader reader = new StreamReader(response.GetResponseStream());
-                var str = reader.ReadToEnd();
-                Debug.Log("POST Retorno API:" + str);
-                return str;
-            }
-            catch (WebException webExcp)
-            {
-                Debug.Log(webExcp.Message);
-                return null;
-
-            }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
-                return null;
-            }
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            StreamReader reader = new StreamReader(response.GetResponseStream());
+            var str = reader.ReadToEnd();
+            Debug.Log("POST Retorno API:" + str);
+            return str;
         }
 
     }

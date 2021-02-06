@@ -15,8 +15,10 @@ namespace Classes
         public int populacao;
         public int sustentabilidade;
         public int sabedoria;
-        public int nivel;
+        public int sabedoria_pesquisa;
+        public bool pesquisado;
         public int id_estacao_tipo;
+        public int id_estacao_melhoria_relacionada;
         public EstacaoTipo estacao_tipo;
     }
 }

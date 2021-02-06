@@ -3,6 +3,8 @@ using Classes;
 using UnityEngine;
 using System;
 using Managers.UI;
+using UnityEngine.UI;
+using System.Collections;
 
 namespace SceneLoading
 {
@@ -13,6 +15,10 @@ namespace SceneLoading
         private Tribo tribo;
         private string nivelScore;
         private int scoreAtual = 1, scoreNextLevel = 2;
+        [SerializeField] private GameObject panelErro;
+        private GameObject erro;
+        [SerializeField] private Canvas canvas;
+        public GameObject panelBonificacao, panelBonificacaoDados;
 
         public Tribo Tribo
         {
@@ -34,6 +40,11 @@ namespace SceneLoading
             {
                 return tribo.nivel.ToString();
             }
+        }
+
+        public string NivelSabedoria
+        {
+            get { return tribo.sabedoria_saldo.ToString() + "/" + tribo.sabedoria.ToString();  }
         }
 
         public string NivelSustentabilidade
@@ -151,9 +162,14 @@ namespace SceneLoading
             get { return tribo.estacoes[1].producao > tribo.estacoes[1].consumo; }
         }
 
-        public int Nivel_sabedoria
+        public int Sabedoria
         {
-            get { return tribo.nivel_sabedoria; }
+            get { return tribo.sabedoria; }
+        }
+
+        public int SabedoriaSaldo
+        {
+            get { return tribo.sabedoria_saldo; }
         }
 
         public Estacao GetEstacaoPorTipo(int id_estacao_tipo)
@@ -186,23 +202,44 @@ namespace SceneLoading
             {
                 instance = this;
                 DontDestroyOnLoad(instance.gameObject);
+                canvas.worldCamera = Camera.main;
+                canvas.planeDistance = 5;
+                erro = Instantiate(panelErro, canvas.transform);
+                erro.SetActive(false);
             }
             else
             {
                 Destroy(gameObject);
             }
-            try
+        }
+
+        private void Start()
+        {
+            StartCoroutine(IAtualizarTribo());
+            canvas.worldCamera = Camera.main;
+            Canvas.ForceUpdateCanvases();
+        }
+
+        private void Update()
+        {
+            if(canvas.worldCamera == null)
             {
-                instance.BuscarTribo();
-                GameManager.instance.LoadTribo();
+                canvas.worldCamera = Camera.main;
+                Canvas.ForceUpdateCanvases();
             }
-            catch (Exception e)
+                
+        }
+
+        public void ExibirBonificacoes()
+        {
+            var bonificacoes = BonificacaoController.Consultar(Id_tribo);
+            panelBonificacao.SetActive(true);
+            panelBonificacaoDados.SetActive(true);
+            if (bonificacoes.Count > 0)
             {
-
+                GetComponentInChildren<PanelBonificacao>().
+                    CarregarBonificacoes(bonificacoes);
             }
-
-
-
         }
 
         public void BuscarTribo()
@@ -224,12 +261,51 @@ namespace SceneLoading
         {
             try
             {
-                UIManager.erro.SetActive(false);
+                erro.SetActive(false);
                 BuscarTribo();
             }
             catch (Exception e)
             {
-                UIManager.Erro(ScoreManager.instance.RecarregarTribo);
+                ExibirPanelErro(ScoreManager.instance.RecarregarTribo, e.Message);
+            }
+        }
+
+        public void ExibirPanelErro(UnityEngine.Events.UnityAction ac, String msgErro)
+        {
+            canvas.worldCamera = Camera.main;
+            Canvas.ForceUpdateCanvases();
+            erro.SetActive(true);
+            Camera.main.orthographicSize = 7;
+            AudioManager.instance.PlayErro();
+            var btnConectar = erro.GetComponentInChildren<Button>();
+            var texts = erro.GetComponentsInChildren<Text>();
+            texts[1].text = msgErro;
+            if(ac is null)
+            {
+                btnConectar.onClick.AddListener(delegate
+                {
+                    erro.SetActive(false);
+                    AudioManager.instance.PlayButtonClick();
+                });
+            }
+            else
+            {
+                btnConectar.onClick.AddListener(delegate
+                {
+                    erro.SetActive(false);
+                    ac();
+                    AudioManager.instance.PlayButtonClick();
+                });
+            }
+            
+        }
+
+        private IEnumerator IAtualizarTribo()
+        {
+            while (true)
+            {
+                yield return new WaitForSeconds(120);
+                RecarregarTribo();
             }
         }
 

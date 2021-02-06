@@ -11,26 +11,54 @@ namespace Controller
     {
         public static Tribo ConsultarPorId(int id_tribo)
         {
-            var jsonResponse = APIRequest.Get(String.Format("tribo/{0}", id_tribo));
-            var tribo = JsonUtility.FromJson<Tribo>(jsonResponse);
-            return tribo;
+            var path = String.Format("tribo/{0}", id_tribo);
+            try
+            {
+                var jsonResponse = APIRequest.Get(path);
+                var tribo = JsonUtility.FromJson<Tribo>(jsonResponse);
+                return tribo;
+            }
+            catch (WebException webExcp)
+            {
+                if (webExcp.Status == WebExceptionStatus.ProtocolError)
+                {
+                    HttpWebResponse httpResponse = (HttpWebResponse)webExcp.Response;
+                    if (httpResponse.StatusCode == HttpStatusCode.Unauthorized)
+                    {
+                        if (PlayerPrefs.HasKey("apiRefreshToken"))
+                        {
+                            if (PlayerPrefs.GetString("apiRefreshToken") != String.Empty)
+                            {
+                                return BaseController<Tribo>.TryGetRefreshToken(path);
+                            }
+                        }
+                    }
+                    var jsonResponse =
+                        new StreamReader(webExcp.Response.GetResponseStream()).ReadToEnd();
+                    var response = JsonUtility.FromJson<ResponseAPI>(jsonResponse);
+                    throw new Exception(response.message);
+
+                }
+                throw webExcp;
+
+            }
         }
 
         public static Tribo ConsultarPorUsuario()
         {
             if (!PlayerPrefs.HasKey("usuario")) {
                 GameManager.instance.Logoff();
-                throw new Exception("Usuário não logado");
+                return null;
             }
             if (PlayerPrefs.GetString("usuario").Equals(string.Empty)){
                 GameManager.instance.Logoff();
-                throw new Exception("Usuário não logado");
+                return null;
             }
-           
             string path = String.Format("triboPorUsuario/{0}", PlayerPrefs.GetString("usuario"));
             try
             {
                 var jsonResponse = APIRequest.Get(path);
+                Debug.Log(jsonResponse);
                 var tribo = JsonUtility.FromJson<Tribo> (jsonResponse);
                 return tribo;
             }
@@ -45,22 +73,20 @@ namespace Controller
                         {
                             if (PlayerPrefs.GetString("apiRefreshToken") != String.Empty)
                             {
-                                return BaseController<Tribo>.TryRefreshToken(path);
+                                return BaseController<Tribo>.TryGetRefreshToken(path);
                             }
                         }
                     }
-                    Debug.Log("Status HTML: " + httpResponse.StatusCode + " - " + HttpStatusCode.Unauthorized);
-                    return null;
+                    var jsonResponse =
+                        new StreamReader(webExcp.Response.GetResponseStream()).ReadToEnd();
+                    var response = JsonUtility.FromJson<ResponseAPI>(jsonResponse);
+                    throw new Exception(response.message);
+
                 }
-                Debug.Log(webExcp.Message);
-                return null;
+                throw webExcp;
 
             }
-            catch (Exception e)
-            {
-                Debug.Log(e.Message);
-                return null;
-            }
         }
+
     }
 }
