@@ -4,14 +4,18 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.Analytics;
 using System.Collections.Generic;
+#if UNITY_ANDROID
 using Unity.Notifications.Android;
+#endif
 
 namespace SceneLoading
 {
     public class GameManager : MonoBehaviour
     {
         public static GameManager instance;
+        #if UNITY_ANDROID
         public AndroidNotificationChannel defaultChannel;
+        #endif
         private void Awake()
         {
             if (instance == null)
@@ -27,16 +31,19 @@ namespace SceneLoading
 
         private void Start()
         {
-            defaultChannel = new AndroidNotificationChannel()
-            {
-                Id = "OGS channel",
-                Name = "Guardiões do Saber Channel",
-                Description = "Canal para notificações do jogo guardiões do Saber",
-                Importance = Importance.Default
-            };
-            AndroidNotificationCenter.CancelAllNotifications();
-            AndroidNotificationCenter.RegisterNotificationChannel(defaultChannel);
+        #if UNITY_ANDROID
+                defaultChannel = new AndroidNotificationChannel()
+                {
+                    Id = "OGS channel",
+                    Name = "Guardiões do Saber Channel",
+                    Description = "Canal para notificações do jogo guardiões do Saber",
+                    Importance = Importance.Default
+                };
+                AndroidNotificationCenter.CancelAllNotifications();
+                AndroidNotificationCenter.RegisterNotificationChannel(defaultChannel);
+            
             GameNotification();
+        #endif
 
             Application.logMessageReceived -= DelegateLog;
             try
@@ -63,7 +70,7 @@ namespace SceneLoading
                 AdicionarEventoAnalytics("Abriu_Jogo", "usuario", PlayerPrefs.GetString("usuario"));
             }
         }
-
+        #if UNITY_ANDROID
         void GameNotification()
         {
             AndroidNotification notification = new AndroidNotification()
@@ -74,6 +81,7 @@ namespace SceneLoading
             };
             var id = AndroidNotificationCenter.SendNotification(notification, defaultChannel.Id);
         }
+        #endif
 
         private void DelegateLog(string message, string StackTraceLogType, LogType type)
         {

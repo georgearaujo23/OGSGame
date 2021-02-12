@@ -32,6 +32,7 @@ namespace SceneLoading
 
         public void CarregarBonificacoes(List<Bonificacao> bonificacoes)
         {
+            AudioManager.instance.PlayBonus();
             LimparDesafios();
             foreach (var bonificacao in bonificacoes)
             {

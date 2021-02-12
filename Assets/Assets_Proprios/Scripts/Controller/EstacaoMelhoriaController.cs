@@ -13,9 +13,9 @@ namespace Controller
 {
     class EstacaoMelhoriaController
     {
-        public static List<EstacaoMelhoria> Consultar(int id_estacao_tipo, int sabedoria)
+        public static List<EstacaoMelhoria> Consultar(int id_estacao_tipo, int id_tribo)
         {
-            var path = String.Format("estacaoMelhoriaPorSabedoria?id_estacao_tipo={0}", id_estacao_tipo);
+            var path = String.Format("estacaoMelhoriaPorSabedoria?id_estacao_tipo={0}&id_tribo={1}", id_estacao_tipo, id_tribo);
             try
             {
                 var jsonResponse = APIRequest.Get(path);

@@ -39,7 +39,13 @@ namespace SceneLoading
                 GetComponents<AudioSource>()[4].Stop();
                 GetComponents<AudioSource>()[5].Stop();
                 GetComponents<AudioSource>()[6].Stop();
+                GetComponents<AudioSource>()[7].Stop();
             }
+        }
+
+        public void PlayBonus()
+        {
+            GetComponents<AudioSource>()[7].Play();
         }
 
         public void PlayLoser()

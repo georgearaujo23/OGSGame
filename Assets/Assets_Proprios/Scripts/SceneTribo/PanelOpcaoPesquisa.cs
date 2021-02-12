@@ -21,7 +21,7 @@ namespace Managers.UI
 
             botoes = new List<Button>();
             var estacao = ScoreManager.instance.GetEstacaoPorTipo(idEstacaoTipo);
-            var esMelhorias = EstacaoMelhoriaController.Consultar(idEstacaoTipo, ScoreManager.instance.Sabedoria);
+            var esMelhorias = EstacaoMelhoriaController.Consultar(idEstacaoTipo, ScoreManager.instance.Id_tribo);
             foreach (var item in esMelhorias)
             {
                 Button btn = Instantiate(pfBtnOpcao, scrollBotoes.transform);
